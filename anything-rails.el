@@ -112,35 +112,34 @@
     (type . file)))
 
 ;;
-;; Rake tasks by http://www.emacswiki.org/emacs/rubikitch
+;; Rake task modified to run in a ruby-compile window 
+;; original by http://www.emacswiki.org/emacs/rubikitch
 ;;
-
 (defvar anything-current-buffer nil)
 (defadvice anything (before get-current-buffer activate)
   (setq anything-current-buffer (current-buffer)))
 
 (setq anything-c-source-rake-task
-  '((name . "Rake Task")
-    (candidates
-     . (lambda ()
-         (when (string-match "^rake" anything-pattern)
-           (cons '("rake" . "rake")
-                 (mapcar (lambda (line)
-                           (cons line (car (split-string line " +#"))))
-                         (with-current-buffer anything-current-buffer
-                           (split-string (shell-command-to-string "rake -T") "\n" t)))))))
-    (action ("Compile" . compile)
-            ("Compile with command-line edit"
-             . (lambda (c) (let ((compile-command (concat c " ")))
-                             (call-interactively 'compile)))))
-    (requires-pattern . 4)))
+	  '((name . "Rake Task")
+		(candidates . (lambda ()
+						(cons '("rake" . "default")
+							  (mapcar (lambda (line)
+										(cons line (second (split-string line " +"))))
+									  (with-current-buffer anything-current-buffer
+										(split-string (shell-command-to-string "rake -s -T") "\n" t))))))
+	
+		(action ("Rake" .(lambda (c) (ruby-compilation-rake c)))
+				("Rake with command-line edit" . (lambda (c) (ruby-compilation-rake t (concat c " ")))))))
+
 
 (defun rake ()
   "Uses Anything to show and execute rake tasks"
   (interactive)
-  (if (locate-dominating-file default-directory "Rakefile")
-	  (anything '(anything-c-source-rake-task) "rake")
-	(message "No Rakefile available")))
+  (let* ((anything-execute-action-at-once-if-one nil)
+		 (anything-quit-if-no-candidate nil))
+	(if (locate-dominating-file default-directory "Rakefile")
+		(anything '(anything-c-source-rake-task))
+	  (message "No Rakefile available"))))
   
 
 (provide 'anything-rails)
