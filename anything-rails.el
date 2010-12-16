@@ -111,19 +111,6 @@
 	;(candidate-transformer nil)
     (type . file)))
 
-(defvar rails-anything-related-files
-  '((name . "Related Files in Rails Project")
-	(candidates . (lambda () (rails-list-project-files)))
-	(match anything-c-match-on-file-name)
-	;(candidate-transformer nil)
-    (type . file)))
-
-;; Shows any related files to the current file in anywhere
-(defun rails-show-related-files ()
-  "Uses Anything to show related files"
-  (interactive)
-  (anything '(rails-anything-related-files)))
-
 ;;
 ;; Rake tasks by http://www.emacswiki.org/emacs/rubikitch
 ;;
