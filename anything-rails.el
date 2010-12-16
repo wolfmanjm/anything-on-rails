@@ -108,7 +108,6 @@
   '((name . "Files in Rails Project")
 	(candidates . (lambda () (rails-list-project-files)))
 	(match anything-c-match-on-file-name)
-	;(candidate-transformer nil)
     (type . file)))
 
 ;;
@@ -119,7 +118,7 @@
 (defadvice anything (before get-current-buffer activate)
   (setq anything-current-buffer (current-buffer)))
 
-(setq anything-c-source-rake-task
+(defvar anything-c-source-rake-task
 	  '((name . "Rake Task")
 		(candidates . (lambda ()
 						(cons '("rake" . "default")

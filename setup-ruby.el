@@ -42,7 +42,4 @@
 			 (define-key yaml-mode-map "\C-m" 'newline-and-indent)))
 
 
-;; Rinari
-;;(add-to-list 'load-path "/home/morris/Stuff/emacs/rinari")
-;;(require 'rinari)
 
