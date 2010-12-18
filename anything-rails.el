@@ -71,8 +71,8 @@
 	  (concat type ": " name))))
 
 (defun rails-dirs (root)
-  "Returns list of directories to search in rails" 
-  (mapconcat 'identity 
+  "Returns list of directories to search in rails, skips ones that do not exist" 
+  (mapconcat (lambda (x) (if (file-directory-p x) x "" ))
 			 (mapcar (lambda (x) (concat root x)) rails-directories )
 			 " "))
   
