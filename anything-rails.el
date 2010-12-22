@@ -35,6 +35,7 @@
 
 
 (require 'find-cmd)
+(require 'ruby-compilation)
 
 (eval-when-compile
   (defvar anything-project-root))
