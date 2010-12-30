@@ -277,6 +277,9 @@ This value only use when option
 (defvar anything-etags-tag-buffer nil
   "Etags tag buffer.")
 
+(defvar anything-c-etags-file-name nil
+  "File name of current tag")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun anything-etags-select (&optional symbol-name)
   "Tag jump using etags and `anything'.
@@ -373,7 +376,10 @@ Try to find tag file in upper directory if haven't found in CURRENT-DIR."
 (defun anything-etags-find-tag (candidate)
   "Find tag that match CANDIDATE from `anything-etags-tag-buffer'.
 And switch buffer and jump tag position.."
-  (setq candidate (replace-regexp-in-string " +\177" "\177" candidate))
+  ;; strip off the filename at the start of the candidate
+  (setq candidate (progn 
+					(string-match "]" candidate)
+					(substring candidate (+ (match-beginning 0) 2))))
   (catch 'failed
     (let (file-name tag tag-info)
       (set-buffer (anything-candidate-buffer))
@@ -398,14 +404,26 @@ And switch buffer and jump tag position.."
       (etags-goto-tag-location tag-info))))
 
 ;;; Rationale: ~/memo/junk/2010-03-27-053504.anything-etags-test.rb
-(defun* anything-c-etags-get-line (s e &optional (width (- (window-width) 6)))
+;; Same as original but makes the end of line invisible
+;; and remembers file name and prepends file name to match
+(defun* anything-c-etags-get-line (s e)
   (let ((substr (buffer-substring s e)))
-    (unless (string-match "^/.*/.[^,]*\\|^\x0c\\|^\\<.*/.[^,]*" substr)
-      (anything-aif (string-match "\177" substr)
-          (concat (substring substr 0 (match-beginning 0))
-                  (or (ignore-errors (make-string (- width (length substr)) ? )) "")
-                  (substring substr (match-beginning 0)))
-        substr))))
+    (if (string-match "^/.*/.*[^,]*\\|^\x0c\\|^\\<.*/.*[^,]*" substr)
+		(setq anything-c-etags-file-name nil)
+	  (let ((fn (anything-c-etags-get-tags-file-name)))
+		(anything-aif (string-match "\177" substr)
+			(concat "[" fn "] "
+					(substring substr 0 (match-beginning 0))
+					;; make the rest of the line invisible, its needed for jump
+					(propertize (substring substr (match-beginning 0)) 'invisible 't 'intangible 't))
+		  substr)))))
+
+(defun anything-c-etags-get-tags-file-name ()
+  "finds the file related to current tag or uses cached version"
+  (or anything-c-etags-file-name
+	  (save-excursion
+		(re-search-backward "\x0c\n\\(.+\\),[0-9]+\n" nil t)
+		(match-string 1))))
 
 (defun anything-c-etags-goto-location (candidate)
   (ring-insert find-tag-marker-ring (point-marker))
