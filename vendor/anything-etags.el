@@ -419,7 +419,7 @@ And switch buffer and jump tag position.."
 			(concat "[" fn "] "
 					(substring substr 0 (match-beginning 0))
 					;; make the rest of the line invisible, its needed for jump
-					(propertize (substring substr (match-beginning 0)) 'invisible 't 'intangible 't))
+					(propertize (substring substr (match-beginning 0)) 'invisible t))
 		  substr)))))
 
 (defun anything-c-etags-get-tags-file-name ()
