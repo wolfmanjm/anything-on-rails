@@ -427,7 +427,7 @@ And switch buffer and jump tag position.."
   (or anything-c-etags-file-name
 	  (save-excursion
 		(re-search-backward "\x0c\n\\(.+\\),[0-9]+\n" nil t)
-		(match-string 1))))
+		(setq anything-c-etags-file-name (match-string 1)))))
 
 (defun anything-c-etags-goto-location (candidate)
   (ring-insert find-tag-marker-ring (point-marker))
