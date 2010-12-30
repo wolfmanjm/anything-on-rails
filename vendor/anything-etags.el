@@ -115,6 +115,10 @@
 
 ;;; Change log:
 ;;
+;; 2010/12/29
+;;   * WolfmanJM (Jim Morris)
+;;      * show the file for each matching tag
+;;
 ;; 2010/03/27
 ;;   * rubikitch:
 ;;      * Fix a bug of handling same tags. I tested in Ruby code.
