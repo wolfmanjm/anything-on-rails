@@ -412,7 +412,7 @@ And switch buffer and jump tag position.."
 ;; and remembers file name and prepends file name to match
 (defun* anything-c-etags-get-line (s e)
   (let ((substr (buffer-substring s e)))
-    (if (string-match "^/.*/.*[^,]*\\|^\x0c\\|^\\<.*/.*[^,]*" substr)
+    (if (string-match "^/.*/.[^,]*\\|^\x0c\\|^\\<.*/.[^,]*" substr)
 		(setq anything-c-etags-file-name nil)
 	  (let ((fn (anything-c-etags-get-tags-file-name)))
 		(anything-aif (string-match "\177" substr)
@@ -424,10 +424,10 @@ And switch buffer and jump tag position.."
 
 (defun anything-c-etags-get-tags-file-name ()
   "finds the file related to current tag or uses cached version"
-  (or anything-c-etags-file-name
+;;  (or anything-c-etags-file-name
 	  (save-excursion
 		(re-search-backward "\x0c\n\\(.+\\),[0-9]+\n" nil t)
-		(setq anything-c-etags-file-name (match-string 1)))))
+		(setq anything-c-etags-file-name (match-string 1))))
 
 (defun anything-c-etags-goto-location (candidate)
   (ring-insert find-tag-marker-ring (point-marker))
