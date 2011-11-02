@@ -1,4 +1,4 @@
-;;; anything-etags.el --- Etags anything.el interface
+;;; anything-etags-ya.el --- Yet Another Etags anything.el interface
 
 ;; Filename: anything-etags.el
 ;; Description: Etags anything.el interface
@@ -281,8 +281,11 @@ This value only use when option
 (defvar anything-etags-tag-buffer nil
   "Etags tag buffer.")
 
+(defvar anything-c-etags-file-name nil
+  "File name of current tag")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Interactive Functions ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun anything-etags-select (&optional symbol-name)
+(defun anything-etags-select-ya (&optional symbol-name)
   "Tag jump using etags and `anything'.
 If SYMBOL-NAME is non-nil, jump tag position with SYMBOL-NAME."
   (interactive)
@@ -295,7 +298,7 @@ If SYMBOL-NAME is non-nil, jump tag position with SYMBOL-NAME."
                          (message "No TAGS file or containing `%s'" symbol-name)
                        (message "No TAGS file"))))
          (anything-execute-action-at-once-if-one t))
-    (anything '(anything-c-source-etags-select)
+    (anything '(anything-c-source-etags-select-ya)
               ;; Initialize input with current symbol
               initial-pattern "Find Tag: " nil)))
 
@@ -377,10 +380,6 @@ Try to find tag file in upper directory if haven't found in CURRENT-DIR."
 (defun anything-etags-find-tag (candidate)
   "Find tag that match CANDIDATE from `anything-etags-tag-buffer'.
 And switch buffer and jump tag position.."
-  ;; strip off the filename at the start of the candidate
-  (setq candidate (progn 
-					(string-match "]" candidate)
-					(substring candidate (+ (match-beginning 0) 2))))
   (catch 'failed
     (let (file-name tag tag-info)
       (set-buffer (anything-candidate-buffer))
@@ -408,24 +407,21 @@ And switch buffer and jump tag position.."
 ;; Same as original but makes the end of line invisible
 ;; and remembers file name and prepends file name to match
 (defun* anything-c-etags-get-line (s e)
-  (let ((substr (buffer-substring s e)))
-    (if (string-match "^/.*/.[^,]*\\|^\x0c\\|^\\<.*/.[^,]*" substr)
-		(setq anything-etags-file-name nil)
-	  (let ((fn (anything-c-etags-get-tags-file-name)))
-		(anything-aif (string-match "\177" substr)
-			(concat "[" fn "] "
-					(substring substr 0 (match-beginning 0))
-					;; make the rest of the line invisible, its needed for jump
-					(propertize (substring substr (match-beginning 0)) 'invisible t))
-		  substr)))))
+  (print "in get-line")
+  (buffer-substring s e))
+
+(defun anything-c-etags-cand-trans (tags sources)
+  (print "in cand trans")
+  (loop for i in tags
+		collect (cons (concat "[filename] " i) i)))
+		
 
 (defun anything-c-etags-get-tags-file-name ()
   "finds the file related to current tag or uses cached version"
-  (print anything-etags-file-name)
-;;  (or anything-etags-file-name
+  (or anything-c-etags-file-name
 	  (save-excursion
 		(re-search-backward "\x0c\n\\(.+\\),[0-9]+\n" nil t)
-		(setq anything-etags-file-name (match-string 1))))
+		(setq anything-c-etags-file-name (match-string 1)))))
 
 (defun anything-c-etags-goto-location (candidate)
   (ring-insert find-tag-marker-ring (point-marker))
@@ -439,15 +435,16 @@ And switch buffer and jump tag position.."
           (with-current-buffer anything-current-buffer
             (anything-etags-get-tag-file))))
 
-(defvar anything-c-source-etags-select
+(defvar anything-c-source-etags-select-ya
   '((name . "Etags")
     (header-name . anything-c-source-etags-header-name)
     (init . anything-etags-create-buffer)
     (candidates-in-buffer)
     (get-line . anything-c-etags-get-line)
+    (filtered-candidate-transformer . anything-c-etags-cand-trans)
     (action ("Goto the location" . anything-c-etags-goto-location))))
 
-(provide 'anything-etags)
+(provide 'anything-etags-ya)
 
 ;; How to save (DO NOT REMOVE!!)
 ;; (emacswiki-post "anything-etags.el")
