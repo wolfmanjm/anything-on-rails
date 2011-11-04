@@ -44,4 +44,6 @@ in the TAGS file.
 Also included is a setup-ruby.el and setup-anything.el that I call from my
 `init.el` to setup the various things I use for ruby/rails development.
 
-There is a dependency on magit if you use the anything-git.
+There is a dependency on magit if you use the anything-git, so make sure there is a 
+ (require 'magit) somewhere.
+
